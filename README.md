@@ -4,11 +4,13 @@ Software for an autonomous car
 
 ## About
 
-I have made this project with the help of an engineer at Continental Frankfurt. The purpose was to make an autnomous car with two distance sensors(left and right) that avoids obstacles to continue its journey.
+I have made this project with the help of an great person and engineer at Continental Frankfurt. The purpose was to make an autnomous car with two distance sensors(left and right) that avoids obstacles to continue its journey.
 <br>
 We started by learning the basics of microcontrollers and how to program them, and eventually completed this project. It was done in 2018.
 <br>
 I have learned a lot of C programming techniques, including operations on bits and also learned to separate the software into three layers, the [**lowest level layer**](Basic_SFWT/Basic_SFWT_Main.c), the [**hardware abstraction layer**](HAL/HAL_Main.c) and [**the application layer**](Aplicatie/Aplicatie_Main.c).
+
+![Image](Media/7.jpg)
 
 ## Components
 
@@ -26,7 +28,20 @@ I have learned a lot of C programming techniques, including operations on bits a
     <li>Sharp distance sensors</li>
     <li>Electric motor</li>
     <li>16MHz oscilator</li>
+    <li>Atmel ICE</li>
 </ul>
+
+![Image](Media/2.jpg)
+
+![Image](Media/4.jpg)
+
+## PCB
+
+The PCB was custom made, to acomodate our needs, it has two layers.
+<br>
+Here is the [**schematic**](LogicSchematic.png) and the actual implementation on the [**PCB**](PCB.png)
+<br>
+![Image](Media/3.jpg)
 
 ## ATMEGA32A
 
@@ -136,6 +151,8 @@ if (verificare == 3)
 	verificare++;
 ```
 
+![Image](Media/5.jpg)
+
 <br>
 <br>
 The virtual screns of the display are defined here as well
@@ -164,6 +181,8 @@ unsigned char Display_array_3[DISPLAY_MEMORY_SIZE] = "    Putere Motor          
 /*                                                       0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
 /*                                              Row      11111111111111111111333333333333333333332222222222222222222244444444444444444444*/
 ```
+
+![Image](Media/8.jpg)
 
 <br>
 Also the analog to digital conversion is done here
@@ -245,3 +264,35 @@ For example this is how we print the distances on the screen
 
   }
 ```
+
+![Image](Media/6.jpg)
+
+<br>
+Here is where we also switch between multiple displays. We use the left and right arrows to navigate between multiple menus on the display.
+
+```
+switch (MMI_State_Machine)
+	  {
+			case MMI_SCREEN1:
+				Display_array=Display_array_0;
+				if(counter>(2*logo_time)/3)
+					{
+						Display_array=Display_array_empty;
+						if(counter>logo_time)
+							MMI_State_Machine=MMI_SCREEN2;
+					}
+
+				counter++;
+				break;
+
+
+			case MMI_SCREEN2:
+				Display_array = Display_array_1;
+
+					tasta = verificare_tasta();
+```
+
+<br>
+One of the menus is for testing the the motor. Using the up and down keyboard keys we can set the engine power in increments of 10%.
+
+![Image](Media/1.jpg)
