@@ -8,7 +8,7 @@ I have made this project with the help of an engineer at Continental Frankfurt. 
 <br>
 We started by learning the basics of microcontrollers and how to program them, and eventually completed this project. It was done in 2018.
 <br>
-I have learned a lot of C programming techniques, including operations on bits and also learned to separate the software into three layers, the [**lowest level layer**](Basic_SFWT/Basic_SFWT_Main.c), the [**conversions and operations layer**](HAL/HAL_Main.c) and [**the application layer**](Aplicatie/Aplicatie_Main.c).
+I have learned a lot of C programming techniques, including operations on bits and also learned to separate the software into three layers, the [**lowest level layer**](Basic_SFWT/Basic_SFWT_Main.c), the [**hardware abstraction layer**](HAL/HAL_Main.c) and [**the application layer**](Aplicatie/Aplicatie_Main.c).
 
 ## Components
 
@@ -40,7 +40,10 @@ Its frquency of 16MHz is more than enough for our project.
 
 I found the process of writing the code for this project to be particularly interesting. As I had previous experience with C/C++ but never programmed a microcontroller before.
 <br>
-In the configuration part I had to toggle certain bits of some register based on my needs
+
+### Configuraion
+
+In the configuration part I had to toggle certain bits of some register based on my needs.
 
 ```
     ICR1 = 2500;
@@ -58,4 +61,73 @@ In the configuration part I had to toggle certain bits of some register based on
 
 	ADCSRA = (0<<ADPS2) | (0<<ADPS0) | (1<<ADEN);
 	ADCSRA |= ((1<<ADSC) + (1<<ADIE) + (1<<ADATE));
+```
+
+<br>
+It was also interesting to set up an interrupt every aproximately 10ms.
+```
+ISR(TIMER2_COMP_vect)
+{
+    Task_10ms();
+}
+ ```
+
+### Hardware Abstracion Layer
+
+In this layer things like decoding the key pressed on the keyboard are processed.
+<br>
+A keyboard is a matrix of wires and a key is located at the intersaction of one vertical wire with a horizontal one. To determine the pressed key firstly we need to determine the column. We apply voltage at every line sequentially then check which column has voltage.
+
+```
+int determinare_coloana()
+{
+
+	if ((PINA & 0xF8) == 0b11110000)
+	{
+		return 0;
+	}
+	if ((PINA & 0b11111000) == 0b11101000)
+	{
+		return 1;
+	}
+	if ((PINA & 0b11111000) == 0b11011000)
+	{
+		return 2;
+	}
+	if ((PINA & 0b11111000) == 0b10111000)
+	{
+		return 3;
+	}
+	if ((PINA & 0b11111000) == 0b01111000)
+	{
+		return 4;
+	}
+
+	return 10;
+}
+```
+
+```
+if (verificare == 3)
+	{
+		PORTD = (PORTD | 0x0F) & (0x0F & 0x0B);
+		colo = determinare_coloana();
+		if (colo != 10)
+			tasta = (char)a[colo][1];
+		else
+			tasta = 10;
+	}
+
+	if (verificare == 4)
+	{
+		PORTD = (PORTD | 0x0F) & (0x0F & 0x7);
+		colo = determinare_coloana();
+		if (colo != 10)
+			tasta = (char)a[colo][0];
+		else
+			tasta = 10;
+		verificare = 0;
+	}
+
+	verificare++;
 ```
