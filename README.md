@@ -78,6 +78,8 @@ In this layer things like decoding the key pressed on the keyboard are processed
 <br>
 A keyboard is a matrix of wires and a key is located at the intersaction of one vertical wire with a horizontal one. To determine the pressed key firstly we need to determine the column. We apply voltage at every line sequentially then check which column has voltage.
 
+#### Column Verification
+
 ```
 int determinare_coloana()
 {
@@ -107,6 +109,8 @@ int determinare_coloana()
 }
 ```
 
+#### Line Verification
+
 ```
 if (verificare == 3)
 	{
@@ -130,4 +134,35 @@ if (verificare == 3)
 	}
 
 	verificare++;
+```
+
+<br>
+<br>
+Here is also where the virtual screns of the display are defined
+```
+LCD_Port_t STEP3_LCD[160];
+unsigned char *Display_array;
+
+unsigned char Display*array_empty[DISPLAY_MEMORY_SIZE] = " ";
+/* 0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
+/* Row 11111111111111111111333333333333333333332222222222222222222244444444444444444444\_/
+
+unsigned char Display*array_0[DISPLAY_MEMORY_SIZE] = " Masina Autonoma v2.0 2019 ";
+/* 0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
+/* Row 11111111111111111111333333333333333333332222222222222222222244444444444444444444\_/
+
+unsigned char Display*array_1[DISPLAY_MEMORY_SIZE] = " Bine ai venit! Andrei < Informatii > ";
+/* 0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
+/* Row 11111111111111111111333333333333333333332222222222222222222244444444444444444444\_/
+
+unsigned char Display*array_2[DISPLAY_MEMORY_SIZE] = " Informatii Masina Dreapta: xx,yy cm Stanga: xx,yy cm Temperatura: xx,y0C ";
+/* 0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
+/* Row 11111111111111111111333333333333333333332222222222222222222244444444444444444444\_/
+
+unsigned char Display*array_3[DISPLAY_MEMORY_SIZE] = " Putere Motor xx% ";
+/* 0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
+/* Row 11111111111111111111333333333333333333332222222222222222222244444444444444444444\_/
+
+```
+
 ```
