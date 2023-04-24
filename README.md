@@ -138,31 +138,110 @@ if (verificare == 3)
 
 <br>
 <br>
-Here is also where the virtual screns of the display are defined
+The virtual screns of the display are defined here as well
+
 ```
 LCD_Port_t STEP3_LCD[160];
 unsigned char *Display_array;
 
-unsigned char Display*array_empty[DISPLAY_MEMORY_SIZE] = " ";
-/* 0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
-/* Row 11111111111111111111333333333333333333332222222222222222222244444444444444444444\_/
+unsigned char Display_array_empty[DISPLAY_MEMORY_SIZE] = "                                                                                ";
+/*                                                       0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
+/*                                              Row      11111111111111111111333333333333333333332222222222222222222244444444444444444444*/
 
-unsigned char Display*array_0[DISPLAY_MEMORY_SIZE] = " Masina Autonoma v2.0 2019 ";
-/* 0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
-/* Row 11111111111111111111333333333333333333332222222222222222222244444444444444444444\_/
+unsigned char Display_array_0[DISPLAY_MEMORY_SIZE] = "   Masina Autonoma                                                    v2.0 2019 ";
+/*                                                       0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
+/*                                              Row      11111111111111111111333333333333333333332222222222222222222244444444444444444444*/
 
-unsigned char Display*array_1[DISPLAY_MEMORY_SIZE] = " Bine ai venit! Andrei < Informatii > ";
-/* 0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
-/* Row 11111111111111111111333333333333333333332222222222222222222244444444444444444444\_/
+unsigned char Display_array_1[DISPLAY_MEMORY_SIZE] = "   Bine ai venit!                              Andrei          < Informatii >    ";
+/*                                                       0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
+/*                                              Row      11111111111111111111333333333333333333332222222222222222222244444444444444444444*/
 
-unsigned char Display*array_2[DISPLAY_MEMORY_SIZE] = " Informatii Masina Dreapta: xx,yy cm Stanga: xx,yy cm Temperatura: xx,y0C ";
-/* 0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
-/* Row 11111111111111111111333333333333333333332222222222222222222244444444444444444444\_/
+unsigned char Display_array_2[DISPLAY_MEMORY_SIZE] = " Informatii Masina   Dreapta: xx,yy cm   Stanga: xx,yy cm    Temperatura: xx,y0C ";
+/*                                                       0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
+/*                                              Row      11111111111111111111333333333333333333332222222222222222222244444444444444444444*/
 
-unsigned char Display*array_3[DISPLAY_MEMORY_SIZE] = " Putere Motor xx% ";
-/* 0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
-/* Row 11111111111111111111333333333333333333332222222222222222222244444444444444444444\_/
-
+unsigned char Display_array_3[DISPLAY_MEMORY_SIZE] = "    Putere Motor             xx%                                                ";
+/*                                                       0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ0123456789ABCDEFGHIJ*/
+/*                                              Row      11111111111111111111333333333333333333332222222222222222222244444444444444444444*/
 ```
 
+<br>
+Also the analog to digital conversion is done here
+
+```
+void conversie_in_distanta()
+{
+	voltaj1 = ((double)senzor1 * 5) / 1024;
+	voltaj2 = ((double)senzor2 * 5) / 1024;
+	distanta1 = 0;
+	distanta2 = 0;
+
+	int i = 1;
+	while (voltaj[i] > voltaj1 && i < sizeof(voltaj))
+		i++;
+	distanta1 = ((distanta[i - 1] - distanta[i]) / (voltaj[i - 1] - voltaj[i])) * (voltaj1 - voltaj[i]) + distanta[i];
+
+	i = 1;
+	while (voltaj[i] > voltaj2 && i < sizeof(voltaj))
+		i++;
+	distanta2 = ((distanta[i - 1] - distanta[i]) / (voltaj[i - 1] - voltaj[i])) * (voltaj2 - voltaj[i]) + distanta[i];
+
+	iteratie++;
+}
+```
+
+<br>
+Writing on a display may seem easy, but a lot of things must be done before displaying something.
+<br>
+The displays has special commands like moving the cursor or erasing everything on the display, these must be configured differently than writing a character.
+
+```
+void send_a_command(unsigned char command)
+{
+	ctrl_port = (1 << E) | (0 << RS) | (0 << RW);
+	_delay_us(10);
+
+	other_port = command;
+	_delay_ms(2);
+	ctrl_port = (0 << E) | (0 << RS) | (0 << RW);
+	_delay_us(10);
+}
+
+void send_a_character(unsigned char character)
+{
+	ctrl_port = (1 << RS) | (1 << E);
+	_delay_us(10);
+	other_port = character;
+	_delay_us(20);
+	ctrl_port = (0 << RS) | (0 << E);
+	_delay_us(10);
+}
+```
+
+### Application
+
+This layer is the easiest to understand. Thanks to the other two layers here we feel like home, we work with numbers and arrays and no more bits operations.
+<br>
+For example this is how we print the distances on the screen
+
+```
+  void display_informatii()
+  {
+	   int cp2distanta1 = (int)(distanta1);
+
+	   Display_array[dreapta_zeci]=(cp2distanta1/10+'0');
+	   Display_array[dreapta_unitati]=(cp2distanta1%10+'0');
+	   int cpdistanta1 = (int)(distanta1*100);
+	   Display_array[dreapta_zecimi]=((cpdistanta1/10)%10+'0');
+	   Display_array[dreapta_sutimi]=(cpdistanta1%10+'0');
+
+	   int cp2distanta2 = (int)(distanta2);
+
+	   Display_array[stanga_zeci]=(cp2distanta2/10+'0');
+	   Display_array[stanga_unitati]=(cp2distanta2%10+'0');
+	   int cpdistanta2 = (int)(distanta2*100);
+	   Display_array[stanga_zecimi]=((cpdistanta2/10)%10+'0');
+	   Display_array[stanga_sutimi]=(cpdistanta2%10+'0');
+
+  }
 ```

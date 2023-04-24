@@ -249,6 +249,7 @@ void send_a_command(unsigned char command)
 	ctrl_port = (0 << E) | (0 << RS) | (0 << RW);
 	_delay_us(10);
 }
+
 void send_a_character(unsigned char character)
 {
 	ctrl_port = (1 << RS) | (1 << E);
